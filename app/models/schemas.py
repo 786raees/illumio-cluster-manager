@@ -1,12 +1,8 @@
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import datetime
-from app.utils import (
-    ValidationHelper,
-    IllumioRole,
-    IllumioEnforcementMode,
-    PATTERNS
-)
+from app.utils import ValidationHelper
+from app.utils.constants import IllumioEnforcementMode
 
 class Label(BaseModel):
     """Illumio label model."""

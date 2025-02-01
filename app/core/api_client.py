@@ -12,11 +12,11 @@ from app.utils import (
     DEFAULT_HEADERS,
     DEFAULT_API_TIMEOUT,
     APIError,
-    APIConnectionError,
     AuthenticationError,
     retry,
     log_execution
 )
+from app.utils.exceptions import APIConnectionError
 
 class BaseAPIClient:
     """Base API client with retry logic and error handling."""

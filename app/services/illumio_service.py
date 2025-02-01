@@ -14,19 +14,11 @@ from app.models import (
 )
 from app.utils import (
     get_logger,
-    IllumioRole,
-    IllumioEnforcementMode,
-    ILLUMIO_ENDPOINTS,
-    ILLUMIO_LABEL_TYPES,
-    ILLUMIO_DEFAULT_SETTINGS,
-    DataHelper,
     ValidationHelper,
-    retry,
-    log_execution,
-    IllumioError,
-    ClusterOperationError,
-    LabelOperationError
+    log_execution
 )
+from app.utils.constants import IllumioEnforcementMode, ILLUMIO_ENDPOINTS, ILLUMIO_DEFAULT_SETTINGS
+from app.utils.exceptions import LabelOperationError, ClusterOperationError, IllumioError
 
 class IllumioService:
     """Service for interacting with Illumio PCE."""

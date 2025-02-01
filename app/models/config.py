@@ -12,21 +12,21 @@ class Settings(BaseModel):
     max_retries: int = Field(default=3, ge=1, le=10)
     
     # Illumio PCE settings
-    base_url: AnyUrl
-    org_id: str = Field(..., pattern=r'^\d+$')
-    api_key: Optional[SecretStr] = None
-    api_user: Optional[str] = None
+    base_url: AnyUrl = Field(..., env='ILLUMIO_BASE_URL')
+    org_id: str = Field(..., pattern=r'^\d+$', env='ILLUMIO_ORG_ID')
+    api_key: Optional[SecretStr] = Field(None, env='ILLUMIO_API_KEY')
+    api_user: Optional[str] = Field(None, env='ILLUMIO_API_USER')
     
     # Vault settings
-    vault_addr: AnyUrl
-    vault_token: SecretStr
+    vault_addr: AnyUrl = Field(..., env='VAULT_ADDR')
+    vault_token: SecretStr = Field(..., env='VAULT_TOKEN')
     vault_mount: str = "secret"
     vault_path: str = "illumio"
     
     # Cluster settings
-    cluster_id: Optional[str] = None
-    cluster_name: Optional[str] = None
-    cluster_token: Optional[SecretStr] = None
+    cluster_id: Optional[str] = Field(None, env='CLUSTER_ID')
+    cluster_name: Optional[str] = Field(None, env='CLUSTER_NAME')
+    cluster_token: Optional[SecretStr] = Field(None, env='CLUSTER_TOKEN')
     cluster_namespace: str = "illumio-system"
     
     # Logging settings
@@ -84,19 +84,6 @@ class Settings(BaseModel):
         env_file = ".env"
         env_file_encoding = "utf-8"
         secrets_dir = "/var/run/secrets"
-        
-        # Environment variable mappings
-        fields = {
-            'vault_addr': {'env': 'VAULT_ADDR'},
-            'vault_token': {'env': 'VAULT_TOKEN'},
-            'api_key': {'env': 'ILLUMIO_API_KEY'},
-            'api_user': {'env': 'ILLUMIO_API_USER'},
-            'base_url': {'env': 'ILLUMIO_BASE_URL'},
-            'org_id': {'env': 'ILLUMIO_ORG_ID'},
-            'cluster_id': {'env': 'CLUSTER_ID'},
-            'cluster_name': {'env': 'CLUSTER_NAME'},
-            'cluster_token': {'env': 'CLUSTER_TOKEN'}
-        }
         
         # Allow extra fields for future extensibility
         extra = 'allow' 

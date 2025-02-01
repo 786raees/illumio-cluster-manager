@@ -51,35 +51,35 @@ class KubernetesService:
         except Exception as e:
             raise KubernetesError(f"Failed to load Kubernetes config: {str(e)}")
 
-    @log_execution(level="DEBUG")
-    @retry(max_attempts=3)
-    async def create_namespace(self, name: str = K8S_NAMESPACE) -> None:
-        """Create Kubernetes namespace.
+    # @log_execution(level="DEBUG")
+    # @retry(max_attempts=3)
+    # async def create_namespace(self, name: str = K8S_NAMESPACE) -> None:
+    #     """Create Kubernetes namespace.
         
-        Args:
-            name: Namespace name
+    #     Args:
+    #         name: Namespace name
             
-        Raises:
-            KubernetesError: If namespace creation fails
-        """
-        try:
-            if not ValidationHelper.is_valid_namespace(name):
-                raise ValueError(f"Invalid namespace name: {name}")
+    #     Raises:
+    #         KubernetesError: If namespace creation fails
+    #     """
+    #     try:
+    #         if not ValidationHelper.is_valid_namespace(name):
+    #             raise ValueError(f"Invalid namespace name: {name}")
                 
-            namespace = client.V1Namespace(
-                metadata=client.V1ObjectMeta(name=name)
-            )
+    #         namespace = client.V1Namespace(
+    #             metadata=client.V1ObjectMeta(name=name)
+    #         )
             
-            self.core_v1.create_namespace(namespace)
-            self.logger.info(f"Created namespace: {name}")
+    #         self.core_v1.create_namespace(namespace)
+    #         self.logger.info(f"Created namespace: {name}")
             
-        except ApiException as e:
-            if e.status == 409:  # Already exists
-                self.logger.debug(f"Namespace {name} already exists")
-            else:
-                raise KubernetesError(f"Failed to create namespace: {str(e)}")
-        except Exception as e:
-            raise KubernetesError(f"Failed to create namespace: {str(e)}")
+    #     except ApiException as e:
+    #         if e.status == 409:  # Already exists
+    #             self.logger.debug(f"Namespace {name} already exists")
+    #         else:
+    #             raise KubernetesError(f"Failed to create namespace: {str(e)}")
+    #     except Exception as e:
+    #         raise KubernetesError(f"Failed to create namespace: {str(e)}")
 
     @log_execution(level="DEBUG")
     @retry(max_attempts=3)
@@ -394,57 +394,57 @@ class KubernetesService:
                 
         return False
 
-    def create_namespace(self) -> bool:
-        """Create Kubernetes namespace with validation"""
-        try:
-            cmd = f"kubectl create ns {self.namespace} --dry-run=client -o yaml | kubectl apply -f -"
-            result = subprocess.run(
-                cmd,
-                shell=True,
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            self.logger.info(f"Namespace created: {result.stdout}")
-            return True
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"Namespace creation failed: {e.stderr}")
-            raise IllumioManagerError("Kubernetes namespace setup failed")
+    # def create_namespace(self) -> bool:
+    #     """Create Kubernetes namespace with validation"""
+    #     try:
+    #         cmd = f"kubectl create ns {self.namespace} --dry-run=client -o yaml | kubectl apply -f -"
+    #         result = subprocess.run(
+    #             cmd,
+    #             shell=True,
+    #             check=True,
+    #             capture_output=True,
+    #             text=True
+    #         )
+    #         self.logger.info(f"Namespace created: {result.stdout}")
+    #         return True
+    #     except subprocess.CalledProcessError as e:
+    #         self.logger.error(f"Namespace creation failed: {e.stderr}")
+    #         raise IllumioManagerError("Kubernetes namespace setup failed")
 
-    def install_helm_chart(self, cluster_id: str, cluster_token: str, pairing_key: str) -> bool:
-        """Install Helm chart with secret values"""
-        try:
-            # Create temporary values file
-            with tempfile.NamedTemporaryFile(mode='w', delete=True) as values_file:
-                values = {
-                    'cluster_id': cluster_id,
-                    'cluster_token': cluster_token,
-                    'cluster_code': pairing_key,
-                    'controller': {
-                        'logLevel': 'debug' if self.settings.environment != 'prod' else 'info'
-                    }
-                }
-                yaml.dump(values, values_file)
+    # def install_helm_chart(self, cluster_id: str, cluster_token: str, pairing_key: str) -> bool:
+    #     """Install Helm chart with secret values"""
+    #     try:
+    #         # Create temporary values file
+    #         with tempfile.NamedTemporaryFile(mode='w', delete=True) as values_file:
+    #             values = {
+    #                 'cluster_id': cluster_id,
+    #                 'cluster_token': cluster_token,
+    #                 'cluster_code': pairing_key,
+    #                 'controller': {
+    #                     'logLevel': 'debug' if self.settings.environment != 'prod' else 'info'
+    #                 }
+    #             }
+    #             yaml.dump(values, values_file)
                 
-                cmd = (
-                    f"helm upgrade --install illumio "
-                    f"--namespace {self.namespace} "
-                    f"--values {values_file.name} "
-                    f"./helm-charts/illumio"
-                )
+    #             cmd = (
+    #                 f"helm upgrade --install illumio "
+    #                 f"--namespace {self.namespace} "
+    #                 f"--values {values_file.name} "
+    #                 f"./helm-charts/illumio"
+    #             )
                 
-                result = subprocess.run(
-                    cmd,
-                    shell=True,
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-                self.logger.info(f"Helm install output: {result.stdout}")
-                return True
-        except (subprocess.CalledProcessError, yaml.YAMLError) as e:
-            self.logger.error(f"Helm installation failed: {str(e)}")
-            raise IllumioManagerError("Helm chart deployment failed")
+    #             result = subprocess.run(
+    #                 cmd,
+    #                 shell=True,
+    #                 check=True,
+    #                 capture_output=True,
+    #                 text=True
+    #             )
+    #             self.logger.info(f"Helm install output: {result.stdout}")
+    #             return True
+    #     except (subprocess.CalledProcessError, yaml.YAMLError) as e:
+    #         self.logger.error(f"Helm installation failed: {str(e)}")
+    #         raise IllumioManagerError("Helm chart deployment failed")
 
     def apply_namespace_labels(self, cluster_name: str) -> bool:
         """Apply namespace labels from original workflow"""

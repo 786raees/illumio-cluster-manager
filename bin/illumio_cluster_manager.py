@@ -93,9 +93,9 @@ async def create_cluster(ctx, cluster_name: str, namespace: str, enforce: bool):
                     enforcement_mode="enforce" if enforce else "visibility_only"
                 )
                 
-                # Create Kubernetes namespace
-                status.update("[bold green]Creating Kubernetes namespace...")
-                await k8s.create_namespace(namespace)
+                # Create Kubernetes namespace - Commented out as requested
+                # status.update("[bold green]Creating Kubernetes namespace...")
+                # await k8s.create_namespace(namespace)
                 
                 # Create workload profile
                 status.update("[bold green]Creating workload profile...")

@@ -17,6 +17,7 @@ from app.utils import (
     log_execution
 )
 from app.utils.exceptions import APIConnectionError
+from app.bin.illumio import ejvault
 
 class BaseAPIClient:
     """Base API client with retry logic and error handling."""
@@ -106,22 +107,24 @@ class BaseAPIClient:
     def request(
         self,
         method: Union[str, HTTPMethod],
-        endpoint: str,
+        url: str,
         params: Optional[Dict] = None,
         data: Optional[Dict] = None,
         headers: Optional[Dict] = None,
         timeout: Optional[int] = None
+
     ) -> Dict[str, Any]:
         """Make API request with enhanced security and logging.
         
         Args:
             method: HTTP method
-            endpoint: API endpoint
+            url: API url
             params: Query parameters
             data: Request body
             headers: Request headers
             timeout: Request timeout
             
+
         Returns:
             Dict[str, Any]: Response data
             
@@ -135,9 +138,6 @@ class BaseAPIClient:
             method = method.value
         method = method.upper()
         
-        # Build URL
-        url = URLHelper.join_url(self.base_url, endpoint)
-        
         # Prepare headers
         request_headers = DEFAULT_HEADERS.copy()
         if headers:
@@ -145,7 +145,7 @@ class BaseAPIClient:
             
         # Add authentication if available
         if hasattr(self.settings, 'api_key'):
-            request_headers['Authorization'] = f"Bearer {self.settings.api_key}"
+            auth = (self.settings.api_user, self.settings.api_key)
             
         # Set timeout
         timeout = timeout or DEFAULT_API_TIMEOUT
@@ -167,9 +167,11 @@ class BaseAPIClient:
                 json=data,
                 headers=request_headers,
                 verify=self.settings.verify_ssl,
-                timeout=timeout
+                timeout=timeout,
+                auth=auth
             )
             
+
             return self._handle_response(response)
             
         except requests.exceptions.RequestException as e:

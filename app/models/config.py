@@ -1,6 +1,7 @@
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, AnyUrl, SecretStr, Field, field_validator, model_validator
 from app.utils import Environment, LogLevel, PATTERNS, ValidationHelper
+from app.utils.constants import ILLUMIO_ORG_ID, ILLUMIO_BASE_URL
 
 class Settings(BaseModel):
     """Application settings model with validation."""
@@ -12,11 +13,12 @@ class Settings(BaseModel):
     max_retries: int = Field(default=3, ge=1, le=10)
     
     # Illumio PCE settings
-    base_url: AnyUrl = Field(..., env='ILLUMIO_BASE_URL')
-    org_id: str = Field(..., pattern=r'^\d+$', env='ILLUMIO_ORG_ID')
+    base_url: AnyUrl = ILLUMIO_BASE_URL
+    org_id: str = ILLUMIO_ORG_ID
     api_key: Optional[SecretStr] = Field(None, env='ILLUMIO_API_KEY')
     api_user: Optional[str] = Field(None, env='ILLUMIO_API_USER')
     
+
     # Vault settings
     vault_addr: AnyUrl = Field(..., env='VAULT_ADDR')
     vault_token: SecretStr = Field(..., env='VAULT_TOKEN')

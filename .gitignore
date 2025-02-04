@@ -128,3 +128,6 @@ pids/
 *.pid
 *.seed
 *.pid.lock 
+illumio.py
+vault.py
+app/bin/illumio/

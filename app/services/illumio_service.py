@@ -62,10 +62,11 @@ class IllumioService:
         try:
             clusters = await self.api.request(
                 'GET',
-                ILLUMIO_ENDPOINTS['container_clusters'],
+                self._build_url(ILLUMIO_ENDPOINTS['container_clusters']),
                 params={'name': cluster_name}
             )
             
+
             for cluster in clusters:
                 if cluster['name'] == cluster_name:
                     return ContainerCluster(**cluster)
@@ -108,9 +109,10 @@ class IllumioService:
             
             response = await self.api.request(
                 'POST',
-                ILLUMIO_ENDPOINTS['container_clusters'],
+                self._build_url(ILLUMIO_ENDPOINTS['container_clusters']),
                 data=payload
             )
+
             
             cluster = ContainerCluster(**response)
             
@@ -162,9 +164,10 @@ class IllumioService:
             # Check if label exists
             labels = await self.api.request(
                 'GET',
-                ILLUMIO_ENDPOINTS['labels'],
+                self._build_url(ILLUMIO_ENDPOINTS['labels']),
                 params={'key': key, 'value': value}
             )
+
             
             if labels:
                 return Label(**labels[0])
@@ -173,9 +176,10 @@ class IllumioService:
             payload = {'key': key, 'value': value}
             response = await self.api.request(
                 'POST',
-                ILLUMIO_ENDPOINTS['labels'],
+                self._build_url(ILLUMIO_ENDPOINTS['labels']),
                 data=payload
             )
+
             
             return Label(**response)
             
@@ -261,9 +265,10 @@ class IllumioService:
             
             response = await self.api.request(
                 'POST',
-                ILLUMIO_ENDPOINTS['sec_policy'],
+                self._build_url(ILLUMIO_ENDPOINTS['sec_policy']),
                 data=rule.model_dump(exclude_none=True)
             )
+
             
             return Rule(**response)
             
@@ -282,20 +287,22 @@ class IllumioService:
         # Create pairing profile
         profile = await self.api.request(
             'POST',
-            ILLUMIO_ENDPOINTS['pairing_profiles'],
+            self._build_url(ILLUMIO_ENDPOINTS['pairing_profiles']),
             data={
                 'name': f"{cluster_name}-profile",
                 **ILLUMIO_DEFAULT_SETTINGS
             }
         )
+
         
         # Generate key
         profile_id = profile['href'].split('/')[-1]
         key_response = await self.api.request(
             'POST',
-            f"{ILLUMIO_ENDPOINTS['pairing_profiles']}/{profile_id}/pairing_key"
+            self._build_url(ILLUMIO_ENDPOINTS['pairing_profiles'] + f"/{profile_id}/pairing_key")
         )
         
+
         return key_response['activation_code']
 
     @log_execution(level="DEBUG")
@@ -320,8 +327,9 @@ class IllumioService:
             cluster_id = cluster.href.split('/')[-1]
             await self.api.request(
                 'DELETE',
-                f"{ILLUMIO_ENDPOINTS['container_clusters']}/{cluster_id}"
+                self._build_url(ILLUMIO_ENDPOINTS['container_clusters']) + f"/{cluster_id}"
             )
+
             
             # Delete Vault secrets
             await self.vault.delete_secret_versions(f"clusters/{cluster_name}", [])
@@ -357,10 +365,11 @@ class IllumioService:
             cluster_id = cluster.href.split('/')[-1]
             response = await self.api.request(
                 'PUT',
-                f"{ILLUMIO_ENDPOINTS['container_clusters']}/{cluster_id}",
+                self._build_url(ILLUMIO_ENDPOINTS['container_clusters']) + f"/{cluster_id}",
                 data={'labels': labels}
             )
             
+
             return ContainerCluster(**response)
             
         except Exception as e:
@@ -385,9 +394,10 @@ class IllumioService:
         try:
             response = await self.api.request(
                 'GET',
-                f"{ILLUMIO_ENDPOINTS['container_clusters']}/{cluster_id}/container_workload_profiles"
+                self._build_url(ILLUMIO_ENDPOINTS['container_clusters']) + f"/{cluster_id}/container_workload_profiles"
             )
             
+
             return [ContainerProfile(**profile) for profile in response]
             
         except Exception as e:

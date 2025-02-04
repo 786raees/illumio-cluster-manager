@@ -1,4 +1,10 @@
 import hvac
+import site
+site.addsitedir('/app/bin/illumio')
+from illumio import ejvault
+from illumio import ejconfig
+
+
 from typing import Optional, Dict, Any, List
 from app.utils import (
     get_logger,

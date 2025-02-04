@@ -51,7 +51,6 @@ DEFAULT_API_TIMEOUT = 30
 MAX_PAGE_SIZE = 100
 DEFAULT_HEADERS = {
     "Content-Type": "application/json",
-    "Accept": "application/json"
 }
 
 # Kubernetes related constants
@@ -69,6 +68,9 @@ VAULT_TOKEN_TTL = "1h"
 ILLUMIO_API_VERSION = "v2"
 ILLUMIO_DEFAULT_PORT = 8443
 ILLUMIO_DEFAULT_PROTOCOL = "https"
+ILLUMIO_ORG_ID = "3801132"
+ILLUMIO_PCE_NAME = "us-scp14.illum.io"
+ILLUMIO_BASE_URL = f"https://{ILLUMIO_PCE_NAME}/api/v2"
 
 ILLUMIO_ENDPOINTS = {
     "container_clusters": "container_clusters",

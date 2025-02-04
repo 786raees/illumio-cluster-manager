@@ -11,12 +11,14 @@ sys.path.insert(0, str(BASE_DIR))
 from config import Settings, VaultConfig
 from app.core.api_client import BaseAPIClient
 from app.core.vault_client import VaultClient
+from app.bin.illumio import ejvault
 from app.services import IllumioService, KubernetesService
 from app.utils import get_logger, KubernetesError
 from app.utils.exceptions import IllumioError
 from rich.console import Console
 from rich.table import Table
 from rich import print as rprint
+
 from functools import wraps
 
 console = Console()
@@ -46,11 +48,15 @@ def cli(ctx, verbose: bool, dry_run: bool, config: Optional[str]):
         logger = get_logger(__name__, level="DEBUG" if verbose else "INFO")
         
         # Initialize services
+        _, api_user, api_key = ejvault.get_pce_secrets()
+        settings.api_key = api_key
+        settings.api_user = api_user
         api_client = BaseAPIClient(settings)
         vault_client = VaultClient(vault_config)
         k8s_service = KubernetesService()
         illumio_service = IllumioService(api_client, vault_client)
         
+
         ctx.obj.update({
             'settings': settings,
             'vault_config': vault_config,

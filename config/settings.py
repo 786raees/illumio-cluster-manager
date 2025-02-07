@@ -53,7 +53,6 @@ class Settings(BaseSettings):
     
     # Component configurations
     logging: LogConfig = Field(default_factory=LogConfig, description="Logging configuration")
-    illumio: IllumioConfig = Field(..., description="Illumio configuration")
     kubernetes: KubernetesConfig = Field(
         default_factory=KubernetesConfig,
         description="Kubernetes configuration"
@@ -127,10 +126,6 @@ class Settings(BaseSettings):
                 'handlers': ['console', 'file'] if self.logging.file_path else ['console']
             }
         }
-
-    def get_illumio_config(self) -> Dict[str, Any]:
-        """Get Illumio configuration dictionary."""
-        return self.illumio.model_dump()
 
     def get_kubernetes_config(self) -> Dict[str, Any]:
         """Get Kubernetes configuration dictionary."""
